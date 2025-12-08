@@ -5,12 +5,13 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import '../global.css';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
 export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
+    // Catch any errors thrown by the Layout component.
+    ErrorBoundary
 } from 'expo-router';
 
 export const unstable_settings = {
@@ -20,6 +21,9 @@ export const unstable_settings = {
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+import { migrateDbIfNeeded } from '@/db';
+import { SQLiteProvider } from 'expo-sqlite';
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -42,7 +46,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <SQLiteProvider databaseName="facture.db" onInit={migrateDbIfNeeded}>
+      <RootLayoutNav />
+    </SQLiteProvider>
+  );
 }
 
 function RootLayoutNav() {
@@ -53,6 +61,13 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="clients/index" options={{ title: 'Clientes' }} />
+        <Stack.Screen name="clients/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="products/index" options={{ title: 'Produtos' }} />
+        <Stack.Screen name="products/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="journal/add" options={{ headerShown: false }} />
+        <Stack.Screen name="invoices/new" options={{ headerShown: false }} />
+        <Stack.Screen name="invoices/[id]" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
