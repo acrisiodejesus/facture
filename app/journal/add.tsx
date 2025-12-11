@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Text } from '@/components/ui/Text';
-import { addJournalEntry } from '@/db/queries';
+import { addJournalEntry, getInvoices } from '@/db/queries';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useState } from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, Modal, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function JournalEntryScreen() {
@@ -17,8 +17,38 @@ export default function JournalEntryScreen() {
   const [form, setForm] = useState({
     amount: '',
     description: '',
-    category: ''
+    category: '',
+    document_type: 'FACTURA', // Default to FACTURA
+    invoice_id: null as number | null
   });
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+
+  useEffect(() => {
+    if (isEntry) {
+      loadInvoices();
+    }
+  }, [isEntry]);
+
+  async function loadInvoices() {
+    try {
+      const data = await getInvoices(db);
+      setInvoices(data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function handleSelectInvoice(invoice: any) {
+    setForm({
+      ...form,
+      amount: String(invoice.total),
+      description: `Pagamento ${invoice.type} #${invoice.invoice_number || invoice.id}`,
+      document_type: invoice.type === 'VD' ? 'VD' : 'FACTURA',
+      invoice_id: invoice.id
+    });
+    setShowInvoiceModal(false);
+  }
 
   async function handleSave() {
     if (!form.amount || !form.description) {
@@ -32,7 +62,9 @@ export default function JournalEntryScreen() {
           type,
           amount: parseFloat(form.amount),
           description: form.description,
-          category: form.category
+          category: form.category,
+          document_type: isEntry ? form.document_type : null,
+          invoice_id: isEntry ? form.invoice_id : null
       });
       router.back();
     } catch (error) {
@@ -45,7 +77,7 @@ export default function JournalEntryScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="p-4 border-b border-gray-200 bg-white flex-row items-center gap-2">
+      <View className="p-4 border-b border-border bg-card flex-row items-center gap-2">
         <Button variant="ghost" label="Voltar" onPress={() => router.back()} size="sm" />
         <Text variant="heading">{isEntry ? 'Nova Entrada' : 'Nova Saída'}</Text>
       </View>
@@ -68,13 +100,66 @@ export default function JournalEntryScreen() {
           placeholder="Ex: Vendas, Alimentação, Transporte"
         />
 
+        {isEntry && (
+            <View className="mb-4">
+                <Button 
+                    label={form.invoice_id ? `Factura #${form.invoice_id} Selecionada` : "Selecionar Factura / VD"} 
+                    variant="outline" 
+                    onPress={() => setShowInvoiceModal(true)}
+                    className="mb-4"
+                />
+
+                <Text className="mb-2 text-sm font-medium text-text">Tipo de Documento</Text>
+                <View className="flex-row gap-4">
+                    <Button 
+                        label="Factura" 
+                        variant={form.document_type === 'FACTURA' ? 'default' : 'outline'} 
+                        onPress={() => setForm({...form, document_type: 'FACTURA'})}
+                        className="flex-1"
+                        size="sm"
+                    />
+                    <Button 
+                        label="VD" 
+                        variant={form.document_type === 'VD' ? 'default' : 'outline'} 
+                        onPress={() => setForm({...form, document_type: 'VD'})}
+                        className="flex-1"
+                        size="sm"
+                    />
+                </View>
+            </View>
+        )}
+
         <Button 
           label={isEntry ? "Registar Entrada" : "Registar Saída"}
           onPress={handleSave} 
           loading={loading}
-          className={`mt-4 ${isEntry ? 'bg-primary' : 'bg-red-500'}`}
+          className={`mt-4 ${isEntry ? 'bg-primary' : 'bg-destructive'}`}
         />
       </ScrollView>
+
+      <Modal visible={showInvoiceModal} animationType="slide" presentationStyle="pageSheet">
+        <View className="flex-1 bg-background p-4">
+            <View className="flex-row justify-between items-center mb-4">
+                <Text variant="heading">Selecionar Documento</Text>
+                <Button label="Fechar" variant="ghost" onPress={() => setShowInvoiceModal(false)} size="sm" />
+            </View>
+            <ScrollView>
+                {invoices.map((inv) => (
+                    <TouchableOpacity 
+                        key={inv.id} 
+                        className="p-4 border-b border-border bg-card mb-2 rounded-lg"
+                        onPress={() => handleSelectInvoice(inv)}
+                    >
+                        <View className="flex-row justify-between">
+                            <Text className="font-bold">{inv.type} #{inv.invoice_number || inv.id}</Text>
+                            <Text className="font-bold">{inv.total.toFixed(2)} MT</Text>
+                        </View>
+                        <Text className="text-gray-500 text-sm">{new Date(inv.date).toLocaleDateString()}</Text>
+                    </TouchableOpacity>
+                ))}
+            </ScrollView>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

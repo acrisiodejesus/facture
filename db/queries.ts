@@ -18,21 +18,17 @@ export async function updateSettings(db: SQLiteDatabase, settings: any) {
 
 // Clients
 export async function getClients(db: SQLiteDatabase) {
-  console.log('Fetching clients...');
   const result = await db.getAllAsync('SELECT * FROM clients ORDER BY name ASC');
-  console.log('Clients fetched:', result.length);
   return result;
 }
 
 export async function addClient(db: SQLiteDatabase, client: any) {
-  console.log('Adding client:', client);
   const { name, nuit, email, phone, address } = client;
   try {
     const result = await db.runAsync(
       'INSERT INTO clients (name, nuit, email, phone, address) VALUES (?, ?, ?, ?, ?)',
       name, nuit, email, phone, address
     );
-    console.log('Client added result:', result);
     return result;
   } catch (e) {
     console.error('Error adding client:', e);
@@ -40,15 +36,19 @@ export async function addClient(db: SQLiteDatabase, client: any) {
   }
 }
 
+export async function getInvoices(db: SQLiteDatabase) {
+  // Fetch invoices that are not fully paid or just all invoices for selection
+  // For simplicity, let's fetch all. In a real app, maybe filter by status.
+  return await db.getAllAsync('SELECT * FROM invoices ORDER BY date DESC');
+}
+
 export async function updateClient(db: SQLiteDatabase, id: number, client: any) {
-  console.log('Updating client:', id, client);
   const { name, nuit, email, phone, address } = client;
   try {
     const result = await db.runAsync(
       'UPDATE clients SET name = ?, nuit = ?, email = ?, phone = ?, address = ? WHERE id = ?',
       name, nuit, email, phone, address, id
     );
-    console.log('Client updated result:', result);
     return result;
   } catch (e) {
     console.error('Error updating client:', e);
@@ -58,21 +58,17 @@ export async function updateClient(db: SQLiteDatabase, id: number, client: any) 
 
 // Products
 export async function getProducts(db: SQLiteDatabase) {
-  console.log('Fetching products...');
   const result = await db.getAllAsync('SELECT * FROM products ORDER BY name ASC');
-  console.log('Products fetched:', result.length);
   return result;
 }
 
 export async function addProduct(db: SQLiteDatabase, product: any) {
-  console.log('Adding product:', product);
   const { name, code, price, tax_rate, description } = product;
   try {
     const result = await db.runAsync(
       'INSERT INTO products (name, code, price, tax_rate, description) VALUES (?, ?, ?, ?, ?)',
       name, code, price, tax_rate, description
     );
-    console.log('Product added result:', result);
     return result;
   } catch (e) {
     console.error('Error adding product:', e);
@@ -82,14 +78,20 @@ export async function addProduct(db: SQLiteDatabase, product: any) {
 
 // Journal
 export async function getJournalEntries(db: SQLiteDatabase) {
-  return await db.getAllAsync('SELECT * FROM journal_entries ORDER BY date DESC');
+  return await db.getAllAsync(`
+    SELECT j.*, i.invoice_number, i.type as invoice_type, c.name as client_name 
+    FROM journal_entries j 
+    LEFT JOIN invoices i ON j.invoice_id = i.id 
+    LEFT JOIN clients c ON i.client_id = c.id
+    ORDER BY j.date DESC
+  `);
 }
 
 export async function addJournalEntry(db: SQLiteDatabase, entry: any) {
-  const { type, amount, description, category } = entry;
+  const { type, amount, description, category, document_type, invoice_id } = entry;
   return await db.runAsync(
-    'INSERT INTO journal_entries (type, amount, description, category) VALUES (?, ?, ?, ?)',
-    type, amount, description, category
+    'INSERT INTO journal_entries (type, amount, description, category, document_type, invoice_id) VALUES (?, ?, ?, ?, ?, ?)',
+    type, amount, description, category, document_type, invoice_id
   );
 }
 
@@ -101,4 +103,56 @@ export async function getJournalBalance(db: SQLiteDatabase) {
     else balance -= e.amount;
   });
   return balance;
+}
+
+export async function getJournalEntry(db: SQLiteDatabase, id: number) {
+  return await db.getFirstAsync('SELECT * FROM journal_entries WHERE id = ?', id);
+}
+
+export async function updateJournalEntry(db: SQLiteDatabase, id: number, entry: any) {
+  const { amount, description, category, document_type, invoice_id } = entry;
+  return await db.runAsync(
+    'UPDATE journal_entries SET amount = ?, description = ?, category = ?, document_type = ?, invoice_id = ? WHERE id = ?',
+    amount, description, category, document_type, invoice_id, id
+  );
+}
+
+export async function getInvoice(db: SQLiteDatabase, id: number) {
+  return await db.getFirstAsync('SELECT * FROM invoices WHERE id = ?', id);
+}
+
+export async function getInvoiceItems(db: SQLiteDatabase, invoiceId: number) {
+  return await db.getAllAsync('SELECT * FROM invoice_items WHERE invoice_id = ?', invoiceId);
+}
+
+export async function updateInvoice(db: SQLiteDatabase, id: number, invoice: any, items: any[]) {
+  const { client_id, type, date, due_date, subtotal, tax_total, total } = invoice;
+
+  await db.runAsync(
+    'UPDATE invoices SET client_id = ?, type = ?, date = ?, due_date = ?, subtotal = ?, tax_total = ?, total = ? WHERE id = ?',
+    client_id, type, date, due_date, subtotal, tax_total, total, id
+  );
+
+  // Delete existing items and re-insert (simplest approach for update)
+  await db.runAsync('DELETE FROM invoice_items WHERE invoice_id = ?', id);
+
+  for (const item of items) {
+    await db.runAsync(
+      'INSERT INTO invoice_items (invoice_id, description, quantity, unit_price, total) VALUES (?, ?, ?, ?, ?)',
+      id, item.description, item.quantity, item.unit_price, item.total
+    );
+  }
+}
+
+export async function deleteJournalEntry(db: SQLiteDatabase, id: number) {
+  return await db.runAsync('DELETE FROM journal_entries WHERE id = ?', id);
+}
+
+export async function deleteInvoice(db: SQLiteDatabase, id: number) {
+  // Unlink journal entries
+  await db.runAsync('UPDATE journal_entries SET invoice_id = NULL WHERE invoice_id = ?', id);
+  // Delete items
+  await db.runAsync('DELETE FROM invoice_items WHERE invoice_id = ?', id);
+  // Delete invoice
+  return await db.runAsync('DELETE FROM invoices WHERE id = ?', id);
 }

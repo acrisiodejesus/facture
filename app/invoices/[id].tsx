@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Text } from '@/components/ui/Text';
 import { getSettings } from '@/db/queries';
+import { formatInvoiceId } from '@/lib/formatters';
 import { generateInvoicePDF } from '@/lib/pdf';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -51,16 +52,19 @@ export default function InvoiceDetailScreen() {
       if (!invoice || !settings) return;
       try {
           await generateInvoicePDF(invoice, items, settings, client);
-      } catch (e) {
+      } catch (e: any) {
+          if (e.message && e.message.includes('Unable to activate keep awake')) {
+              return;
+          }
           Alert.alert('Erro', 'Falha ao gerar PDF');
       }
   }
 
-  if (loading || !invoice) return <View className="flex-1 bg-white justify-center items-center"><Text>Carregando...</Text></View>;
+  if (loading || !invoice) return <View className="flex-1 bg-background justify-center items-center"><Text>Carregando...</Text></View>;
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="p-4 border-b border-gray-200 bg-white flex-row items-center justify-between">
+      <View className="p-4 border-b border-border bg-card flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
             <Button variant="ghost" label="Voltar" onPress={() => router.back()} size="sm" />
             <Text variant="heading">Detalhes</Text>
@@ -75,7 +79,7 @@ export default function InvoiceDetailScreen() {
       <ScrollView className="flex-1 p-4">
         <Card className="mb-4">
             <View className="flex-row justify-between mb-2">
-                <Text variant="subheading">{invoice.type} #{invoice.id}</Text>
+                <Text variant="subheading">{formatInvoiceId(invoice.type, invoice.id)}</Text>
                 <Text>{new Date(invoice.date).toLocaleDateString()}</Text>
             </View>
             <Text variant="heading" className="text-2xl mb-2">{invoice.total.toFixed(2)} MT</Text>
@@ -84,16 +88,16 @@ export default function InvoiceDetailScreen() {
 
         <Text variant="subheading" className="mb-2">Itens</Text>
         {items.map((item, index) => (
-            <View key={index} className="bg-white p-3 border-b border-gray-100 flex-row justify-between">
+            <View key={index} className="bg-card p-3 border-b border-border flex-row justify-between">
                 <View>
-                    <Text className="font-medium">{item.description}</Text>
+                    <Text className="font-medium text-text">{item.description}</Text>
                     <Text variant="muted">{item.quantity} x {item.unit_price.toFixed(2)}</Text>
                 </View>
-                <Text className="font-bold">{item.total.toFixed(2)}</Text>
+                <Text className="font-bold text-text">{item.total.toFixed(2)}</Text>
             </View>
         ))}
 
-        <View className="mt-6 bg-white p-4 rounded-lg">
+        <View className="mt-6 bg-card p-4 rounded-lg border border-border">
             <View className="flex-row justify-between mb-2">
                 <Text>Subtotal</Text>
                 <Text>{invoice.subtotal.toFixed(2)} MT</Text>
@@ -102,7 +106,7 @@ export default function InvoiceDetailScreen() {
                 <Text>IVA</Text>
                 <Text>{invoice.tax_total.toFixed(2)} MT</Text>
             </View>
-            <View className="border-t border-gray-200 pt-2 flex-row justify-between">
+            <View className="border-t border-border pt-2 flex-row justify-between">
                 <Text variant="heading" className="text-lg">Total</Text>
                 <Text variant="heading" className="text-lg">{invoice.total.toFixed(2)} MT</Text>
             </View>

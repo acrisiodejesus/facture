@@ -21,11 +21,11 @@ export function Badge({ label, variant = 'default', className = '', ...props }: 
       textStyle += ' text-white';
       break;
     case 'outline':
-      containerStyle += ' border border-gray-200';
-      textStyle += ' text-gray-800';
+      containerStyle += ' border border-border';
+      textStyle += ' text-text';
       break;
     case 'destructive':
-      containerStyle += ' bg-red-500';
+      containerStyle += ' bg-destructive';
       textStyle += ' text-white';
       break;
   }

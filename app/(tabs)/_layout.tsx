@@ -2,21 +2,23 @@ import { Tabs } from 'expo-router';
 import { BookOpen, FileText, Settings, Users } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import React from 'react';
+import { Platform } from 'react-native';
 
 
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#606c38',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: isDark ? '#dda15e' : '#606c38', // accent : primary
+        tabBarInactiveTintColor: isDark ? '#9ca3af' : '#9ca3af',
         tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: '#e5e7eb',
-          height: 60,
-          paddingBottom: 8,
+          borderTopColor: isDark ? '#404040' : '#e5e7eb',
+          backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+          height: Platform.OS === 'ios' ? 90 : 70,
+          paddingBottom: Platform.OS === 'ios' ? 30 : 10,
           paddingTop: 8,
         },
         headerShown: false,

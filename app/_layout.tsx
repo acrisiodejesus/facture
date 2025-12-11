@@ -4,6 +4,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import 'react-native-reanimated';
 import '../global.css';
 
@@ -58,17 +59,21 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="clients/index" options={{ title: 'Clientes' }} />
-        <Stack.Screen name="clients/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="products/index" options={{ title: 'Produtos' }} />
-        <Stack.Screen name="products/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="journal/add" options={{ headerShown: false }} />
-        <Stack.Screen name="invoices/new" options={{ headerShown: false }} />
-        <Stack.Screen name="invoices/[id]" options={{ headerShown: false }} />
-      </Stack>
+      <View className={colorScheme === 'dark' ? 'flex-1 dark' : 'flex-1'}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="clients/index" options={{ title: 'Clientes' }} />
+          <Stack.Screen name="clients/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="products/index" options={{ title: 'Produtos' }} />
+          <Stack.Screen name="products/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="journal/add" options={{ headerShown: false }} />
+          <Stack.Screen name="invoices/new" options={{ headerShown: false }} />
+          <Stack.Screen name="invoices/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="journal/edit" options={{ headerShown: false }} />
+          <Stack.Screen name="invoices/edit" options={{ headerShown: false }} />
+        </Stack>
+      </View>
     </ThemeProvider>
   );
 }

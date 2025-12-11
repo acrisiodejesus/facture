@@ -42,7 +42,6 @@ export default function ClientFormScreen() {
   }
 
   async function handleSave() {
-    console.log('handleSave called', form);
     if (!form.name) {
         Alert.alert('Erro', 'O nome é obrigatório');
         return;
@@ -52,13 +51,10 @@ export default function ClientFormScreen() {
     try {
       if (isEditing) {
         const idParam = Array.isArray(id) ? id[0] : id;
-        console.log('Updating client with id:', idParam);
         await updateClient(db, Number(idParam), form);
       } else {
-        console.log('Adding new client');
         await addClient(db, form);
       }
-      console.log('Save successful, navigating back');
       router.back();
     } catch (error) {
       console.error('Error in handleSave:', error);
@@ -70,7 +66,7 @@ export default function ClientFormScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="p-4 border-b border-gray-200 bg-white flex-row items-center gap-2">
+      <View className="p-4 border-b border-border bg-card flex-row items-center gap-2">
         <Button variant="ghost" label="Voltar" onPress={() => router.back()} size="sm" />
         <Text variant="heading">{isEditing ? 'Editar Cliente' : 'Novo Cliente'}</Text>
       </View>

@@ -72,7 +72,10 @@ export const SCHEMA = {
       amount REAL NOT NULL,
       description TEXT NOT NULL,
       date DATETIME DEFAULT CURRENT_TIMESTAMP,
-      category TEXT
+      category TEXT,
+      document_type TEXT, -- 'FACTURA', 'VD', 'RECIBO'
+      invoice_id INTEGER,
+      FOREIGN KEY (invoice_id) REFERENCES invoices (id)
     );
   `
 };

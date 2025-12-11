@@ -75,7 +75,7 @@ export default function ProductFormScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="p-4 border-b border-gray-200 bg-white flex-row items-center gap-2">
+      <View className="p-4 border-b border-border bg-card flex-row items-center gap-2">
         <Button variant="ghost" label="Voltar" onPress={() => router.back()} size="sm" />
         <Text variant="heading">{isEditing ? 'Editar Produto' : 'Novo Produto'}</Text>
       </View>

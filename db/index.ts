@@ -2,7 +2,7 @@ import { type SQLiteDatabase } from 'expo-sqlite';
 import { SCHEMA } from './schema';
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
-  const DATABASE_VERSION = 1;
+  const DATABASE_VERSION = 2;
   // @ts-ignore
   let { user_version: currentDbVersion } = await db.getFirstAsync<{ user_version: number }>(
     'PRAGMA user_version'
@@ -32,8 +32,25 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
         'Minha Empresa', 'pt-MZ', 'MZN'
       );
     }
+  }
 
-    currentDbVersion = 1;
+  // Migration for version 2: Add document_type and invoice_id to journal_entries
+  if (currentDbVersion < 2) {
+    try {
+      const tableInfo = await db.getAllAsync<{ name: string }>('PRAGMA table_info(journal_entries)');
+
+      const hasDocumentType = tableInfo.some(col => col.name === 'document_type');
+      if (!hasDocumentType) {
+        await db.execAsync('ALTER TABLE journal_entries ADD COLUMN document_type TEXT');
+      }
+
+      const hasInvoiceId = tableInfo.some(col => col.name === 'invoice_id');
+      if (!hasInvoiceId) {
+        await db.execAsync('ALTER TABLE journal_entries ADD COLUMN invoice_id INTEGER REFERENCES invoices(id)');
+      }
+    } catch (e) {
+      console.error('Migration error:', e);
+    }
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

@@ -3,9 +3,12 @@ import { Input } from '@/components/ui/Input';
 import { Text } from '@/components/ui/Text';
 import { getJournalEntries, getSettings, updateSettings } from '@/db/queries';
 import { exportToExcel } from '@/lib/excel';
+import { generateJournalPDF, generateSalesMapPDF } from '@/lib/pdf';
+import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 import { useSQLiteContext } from 'expo-sqlite';
+import { Briefcase } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import { Alert, Image, Linking, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SettingsScreen() {
@@ -18,7 +21,8 @@ export default function SettingsScreen() {
     email: '',
     phone: '',
     tax_percentage: '16',
-    currency: 'MZN'
+    currency: 'MZN',
+    logo_uri: null as string | null
   });
 
   useEffect(() => {
@@ -36,7 +40,8 @@ export default function SettingsScreen() {
           email: settings.email || '',
           phone: settings.phone || '',
           tax_percentage: String(settings.tax_percentage || '16'),
-          currency: settings.currency || 'MZN'
+          currency: settings.currency || 'MZN',
+          logo_uri: settings.logo_uri || null
         });
       }
     } catch (error) {
@@ -61,23 +66,81 @@ export default function SettingsScreen() {
     }
   }
 
-  async function handleExportExcel() {
+  async function handlePickLogo() {
+    const result = await launchImageLibraryAsync({
+      mediaTypes: MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      setForm({ ...form, logo_uri: result.assets[0].uri });
+    }
+  }
+
+  async function handleExportJournalExcel() {
       try {
           const entries = await getJournalEntries(db);
-          await exportToExcel(entries, 'Diario', 'backup_diario');
+          await exportToExcel(entries, 'Diario', 'diario_operacoes', 'JOURNAL');
       } catch (e) {
           console.error(e);
           Alert.alert('Erro', 'Falha ao exportar Excel');
       }
   }
 
+  async function handleExportJournalPDF() {
+      try {
+          const entries = await getJournalEntries(db);
+          const settings = await getSettings(db);
+          await generateJournalPDF(entries, settings);
+      } catch (e) {
+          console.error(e);
+          Alert.alert('Erro', 'Falha ao exportar PDF');
+      }
+  }
+
+  async function handleExportSalesMapExcel() {
+      try {
+          const entries = await getJournalEntries(db);
+          const sales = entries.filter((e: any) => e.type === 'ENTRY');
+          await exportToExcel(sales, 'MapaVendas', 'mapa_vendas', 'SALES_MAP');
+      } catch (e) {
+          console.error(e);
+          Alert.alert('Erro', 'Falha ao exportar Excel');
+      }
+  }
+
+  async function handleExportSalesMapPDF() {
+      try {
+          const entries = await getJournalEntries(db);
+          const settings = await getSettings(db);
+          const sales = entries.filter((e: any) => e.type === 'ENTRY');
+          await generateSalesMapPDF(sales, settings);
+      } catch (e) {
+          console.error(e);
+          Alert.alert('Erro', 'Falha ao exportar PDF');
+      }
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="p-4 border-b border-gray-200 bg-transparent">
+      <View className="p-4 border-b border-border bg-transparent">
         <Text variant="heading">Definições</Text>
       </View>
       <ScrollView className="flex-1 p-4">
         <Text variant="subheading" className="mb-4">Dados da Empresa</Text>
+        
+        <View className="items-center mb-6">
+            <TouchableOpacity onPress={handlePickLogo} className="h-24 w-24 bg-input rounded-full items-center justify-center overflow-hidden border border-border">
+                {form.logo_uri ? (
+                    <Image source={{ uri: form.logo_uri }} className="h-full w-full" resizeMode="cover" />
+                ) : (
+                    <Text className="text-muted text-xs text-center">Logo</Text>
+                )}
+            </TouchableOpacity>
+            <Text className="text-primary text-sm mt-2 font-medium" onPress={handlePickLogo}>Alterar Logo</Text>
+        </View>
         
         <Input 
           label="Nome da Empresa" 
@@ -131,8 +194,83 @@ export default function SettingsScreen() {
           className="mt-4 mb-8"
         />
         
-        <Text variant="subheading" className="mb-4">Backups</Text>
-        <Button variant="outline" label="Exportar Relatório (Excel)" onPress={handleExportExcel} />
+        <Text variant="subheading" className="mb-4">Exportar Dados</Text>
+        
+        <View className="mb-6">
+            <Text className="mb-2 font-medium text-text">Exportar Diário</Text>
+            <Text className="mb-2 text-xs text-muted">Inclui todas as operações (Entradas e Saídas).</Text>
+            <View className="flex-row gap-3">
+                <Button 
+                    variant="outline" 
+                    label="PDF" 
+                    onPress={handleExportJournalPDF} 
+                    className="flex-1"
+                />
+                <Button 
+                    variant="outline" 
+                    label="Excel" 
+                    onPress={handleExportJournalExcel} 
+                    className="flex-1"
+                />
+            </View>
+        </View>
+
+        <View className="mb-6">
+            <Text className="mb-2 font-medium text-text">Exportar Mapa de Vendas</Text>
+            <Text className="mb-2 text-xs text-muted">Apenas entradas, com cálculo de IVA.</Text>
+            <View className="flex-row gap-3">
+                <Button 
+                    variant="outline" 
+                    label="PDF" 
+                    onPress={handleExportSalesMapPDF} 
+                    className="flex-1"
+                />
+                <Button 
+                    variant="outline" 
+                    label="Excel" 
+                    onPress={handleExportSalesMapExcel} 
+                    className="flex-1"
+                />
+            </View>
+        </View>
+
+        <View className="mt-4 mb-8 border-t border-border pt-6">
+            <Text variant="subheading" className="mb-4">Legal e Comercial</Text>
+            
+            <TouchableOpacity 
+                className="bg-primary p-6 rounded-xl mb-6 shadow-lg shadow-primary/20 flex-row items-center gap-4"
+                onPress={() => Linking.openURL('https://sejacriativo.org/facture/comercial')}
+            >
+                <View className="bg-white/20 p-3 rounded-full">
+                    <Briefcase size={24} color="white" />
+                </View>
+                <View className="flex-1">
+                    <Text className="font-bold text-white text-xl mb-1">Quero usar Comercialmente</Text>
+                    <Text className="text-white/90 text-sm leading-5">
+                        Use o facture como sistema de facturação da sua empresa com autorização legal da Autoridade Tributária de Moçambique.
+                    </Text>
+                </View>
+            </TouchableOpacity>
+
+            <View className="flex-row justify-center gap-6 mb-6">
+                <Text 
+                    className="text-primary underline"
+                    onPress={() => Linking.openURL('https://sejacriativo.org/facture/terms')}
+                >
+                    Termos e Condições
+                </Text>
+                <Text 
+                    className="text-primary underline"
+                    onPress={() => Linking.openURL('https://sejacriativo.org/facture/privacy')}
+                >
+                    Políticas de Privacidade
+                </Text>
+            </View>
+
+            <Text className="text-center text-muted text-xs">
+                Versão 1.0.0
+            </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

@@ -26,7 +26,7 @@ export default function ProductsListScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="p-4 border-b border-gray-200 bg-transparent flex-row justify-between items-center">
+      <View className="p-4 border-b border-border bg-transparent flex-row justify-between items-center">
         <Text variant="heading">Produtos</Text>
         <Button 
             label="Novo" 

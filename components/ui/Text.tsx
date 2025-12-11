@@ -7,20 +7,20 @@ interface ThemedTextProps extends TextProps {
 }
 
 export function Text({ variant = 'default', className = '', ...props }: ThemedTextProps) {
-  let baseStyle = 'text-base text-secondary dark:text-white font-sans';
+  let baseStyle = 'text-base text-text font-sans';
 
   switch (variant) {
     case 'heading':
-      baseStyle = 'text-2xl font-bold text-primary dark:text-accent';
+      baseStyle = 'text-2xl font-bold text-primary';
       break;
     case 'subheading':
-      baseStyle = 'text-lg font-semibold text-secondary/80 dark:text-white/80';
+      baseStyle = 'text-lg font-semibold text-text opacity-80';
       break;
     case 'muted':
-      baseStyle = 'text-sm text-gray-500 dark:text-gray-400';
+      baseStyle = 'text-sm text-text opacity-50';
       break;
     case 'error':
-      baseStyle = 'text-sm text-red-500';
+      baseStyle = 'text-sm text-destructive';
       break;
   }
 

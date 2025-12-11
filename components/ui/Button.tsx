@@ -37,7 +37,7 @@ export function Button({
       textStyle += ' text-primary';
       break;
     case 'destructive':
-      containerStyle += ' bg-red-500';
+      containerStyle += ' bg-destructive';
       textStyle += ' text-white';
       break;
   }
