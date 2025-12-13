@@ -2,7 +2,7 @@
   "expo": {
     "name": "facture",
     "slug": "facture",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "facture",
@@ -37,12 +37,6 @@
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "e6fd6684-f688-4c3a-a500-6210dc1d1658"
-      }
     }
   }
 }

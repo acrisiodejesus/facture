@@ -4,6 +4,7 @@ import { Text } from '@/components/ui/Text';
 import { getJournalEntries, getSettings, updateSettings } from '@/db/queries';
 import { exportToExcel } from '@/lib/excel';
 import { generateJournalPDF, generateSalesMapPDF } from '@/lib/pdf';
+import Constants from 'expo-constants';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Briefcase } from 'lucide-react-native';
@@ -267,8 +268,18 @@ export default function SettingsScreen() {
                 </Text>
             </View>
 
-            <Text className="text-center text-muted text-xs">
-                Versão 1.0.0
+            <View className="mb-6 p-4 bg-secondary/10 rounded-lg border border-secondary/20">
+                <Text className="font-bold text-secondary mb-2">Isenção de Responsabilidade</Text>
+                <Text className="text-text text-sm mb-2">
+                    Este aplicativo não representa nenhuma entidade governamental.
+                </Text>
+                <Text className="text-text text-sm">
+                    Fonte das informações fiscais: <Text className="text-primary underline" onPress={() => Linking.openURL('https://www.at.gov.mz')}>Autoridade Tributária de Moçambique (www.at.gov.mz)</Text>.
+                </Text>
+            </View>
+
+            <Text className="text-center text-text opacity-50 text-xs">
+                facture - Versão {Constants.expoConfig?.version ?? '1.0.0'}
             </Text>
         </View>
       </ScrollView>

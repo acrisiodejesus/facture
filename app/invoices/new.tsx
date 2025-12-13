@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Trash } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { Alert, Modal, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Alert, Linking, Modal, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function NewInvoiceScreen() {
@@ -230,6 +230,10 @@ export default function NewInvoiceScreen() {
                 <Text variant="heading" className="text-lg">{total.toFixed(2)} MT</Text>
             </View>
         </View>
+
+        <Text className="text-xs text-muted text-center mt-2 px-4">
+            Taxas configuradas pelo usuário. Verifique a conformidade com a <Text className="text-primary underline" onPress={() => Linking.openURL('https://www.at.gov.mz')}>AT (www.at.gov.mz)</Text>.
+        </Text>
 
         <Button 
           label="Criar Documento" 

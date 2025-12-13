@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Text } from '@/components/ui/Text';
+import { useColorScheme } from '@/components/useColorScheme';
 import { deleteJournalEntry, getInvoices, getJournalEntry, updateJournalEntry } from '@/db/queries';
 import { formatInvoiceId } from '@/lib/formatters';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -13,6 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EditJournalEntryScreen() {
   const { id } = useLocalSearchParams();
+  const colorScheme = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#ffffff' : '#000000';
   const db = useSQLiteContext();
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -103,12 +106,12 @@ export default function EditJournalEntryScreen() {
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="flex-row items-center p-4 border-b border-border">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <ArrowLeft size={24} className="text-text" />
+          <ArrowLeft size={24} color={iconColor} />
         </TouchableOpacity>
         <Text variant="heading">Editar {type === 'ENTRY' ? 'Entrada' : 'Saída'}</Text>
         <View className="flex-1" />
         <TouchableOpacity onPress={handleDelete} className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
-            <Trash2 size={20} className="text-destructive" />
+            <Trash2 size={20} color="#ef4444" />
         </TouchableOpacity>
       </View>
 
@@ -121,13 +124,13 @@ export default function EditJournalEntryScreen() {
                         onPress={() => setShowInvoiceModal(true)}
                         className="flex-row items-center justify-between p-3 border border-border rounded-lg bg-card"
                     >
-                        <Text className={invoiceId ? 'text-text' : 'text-muted'}>
+                        <Text className={invoiceId ? 'text-text' : 'text-text opacity-60'}>
                             {invoiceId 
                                 ? `Factura ${invoices.find(i => i.id === invoiceId) ? formatInvoiceId(invoices.find(i => i.id === invoiceId).type, invoices.find(i => i.id === invoiceId).id) : invoiceId}` 
                                 : 'Seleccionar Factura...'
                             }
                         </Text>
-                        <FileText size={20} className="text-muted" />
+                        <FileText size={20} color="#9ca3af" />
                     </TouchableOpacity>
                 </View>
             )}
@@ -160,7 +163,7 @@ export default function EditJournalEntryScreen() {
                                     : 'bg-transparent border-border'
                             }`}
                         >
-                            <Text className={documentType === doc ? 'text-white' : 'text-muted'}>
+                            <Text className={documentType === doc ? 'text-white' : 'text-text opacity-60'}>
                                 {doc}
                             </Text>
                         </TouchableOpacity>
@@ -197,7 +200,7 @@ export default function EditJournalEntryScreen() {
                         >
                             <View>
                                 <Text className="font-bold text-text">{formatInvoiceId(invoice.type, invoice.id)}</Text>
-                                <Text className="text-muted">{new Date(invoice.date).toLocaleDateString()} - {invoice.client_name || 'Consumidor Final'}</Text>
+                                <Text className="text-text opacity-60">{new Date(invoice.date).toLocaleDateString()} - {invoice.client_name || 'Consumidor Final'}</Text>
                             </View>
                             <Text className="font-bold text-primary">{invoice.total.toFixed(2)} MT</Text>
                         </TouchableOpacity>

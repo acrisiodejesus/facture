@@ -26,8 +26,9 @@ export default function ClientsListScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
-      <View className="p-4 border-b border-border bg-transparent flex-row justify-between items-center">
-        <Text variant="heading">Clientes</Text>
+      <View className="p-4 border-b border-border bg-transparent flex-row items-center gap-2">
+        <Button variant="ghost" label="Voltar" onPress={() => router.back()} size="sm" />
+        <Text variant="heading" className="flex-1">Clientes</Text>
         <Button 
             label="Novo" 
             size="sm" 

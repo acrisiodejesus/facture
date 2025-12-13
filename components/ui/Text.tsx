@@ -17,7 +17,7 @@ export function Text({ variant = 'default', className = '', ...props }: ThemedTe
       baseStyle = 'text-lg font-semibold text-text opacity-80';
       break;
     case 'muted':
-      baseStyle = 'text-sm text-text opacity-50';
+      baseStyle = 'text-sm text-text opacity-70';
       break;
     case 'error':
       baseStyle = 'text-sm text-destructive';

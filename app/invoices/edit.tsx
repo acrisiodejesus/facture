@@ -2,16 +2,19 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Text } from '@/components/ui/Text';
+import { useColorScheme } from '@/components/useColorScheme';
 import { deleteInvoice, getClients, getInvoice, getInvoiceItems, getProducts, updateInvoice } from '@/db/queries';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft, Trash2 } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { Alert, Modal, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Alert, Linking, Modal, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EditInvoiceScreen() {
   const { id } = useLocalSearchParams();
+  const colorScheme = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#ffffff' : '#000000';
   const db = useSQLiteContext();
   
   const [type, setType] = useState('Factura');
@@ -149,12 +152,12 @@ export default function EditInvoiceScreen() {
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <View className="flex-row items-center p-4 border-b border-border">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <ArrowLeft size={24} className="text-text" />
+          <ArrowLeft size={24} color={iconColor} />
         </TouchableOpacity>
         <Text variant="heading">Editar Documento</Text>
         <View className="flex-1" />
         <TouchableOpacity onPress={handleDelete} className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
-            <Trash2 size={20} className="text-destructive" />
+            <Trash2 size={20} color="#ef4444" />
         </TouchableOpacity>
       </View>
 
@@ -166,7 +169,7 @@ export default function EditInvoiceScreen() {
                     onPress={() => setType(t)}
                     className={`px-4 py-2 rounded-full border ${type === t ? 'bg-primary border-primary' : 'bg-transparent border-border'}`}
                 >
-                    <Text className={type === t ? 'text-white' : 'text-muted'}>{t}</Text>
+                    <Text className={type === t ? 'text-white' : 'text-text opacity-60'}>{t}</Text>
                 </TouchableOpacity>
             ))}
         </View>
@@ -193,12 +196,12 @@ export default function EditInvoiceScreen() {
                 <View className="flex-row justify-between mb-2">
                     <Text className="font-bold text-text flex-1">{item.description}</Text>
                     <TouchableOpacity onPress={() => removeItem(index)}>
-                        <Trash2 size={20} className="text-destructive" />
+                        <Trash2 size={20} color="#ef4444" />
                     </TouchableOpacity>
                 </View>
                 <View className="flex-row gap-2">
                     <View className="flex-1">
-                        <Text className="text-xs text-muted mb-1">Qtd</Text>
+                        <Text className="text-xs text-text opacity-60 mb-1">Qtd</Text>
                         <Input 
                             value={item.quantity.toString()} 
                             onChangeText={(v) => updateItem(index, 'quantity', v)}
@@ -207,7 +210,7 @@ export default function EditInvoiceScreen() {
                         />
                     </View>
                     <View className="flex-1">
-                        <Text className="text-xs text-muted mb-1">Preço</Text>
+                        <Text className="text-xs text-text opacity-60 mb-1">Preço</Text>
                         <Input 
                             value={item.unit_price.toString()} 
                             onChangeText={(v) => updateItem(index, 'unit_price', v)}
@@ -226,11 +229,11 @@ export default function EditInvoiceScreen() {
 
         <Card className="p-4 mt-4 mb-8 bg-muted/10">
             <View className="flex-row justify-between mb-2">
-                <Text className="text-muted">Subtotal</Text>
+                <Text className="text-text opacity-60">Subtotal</Text>
                 <Text className="text-text">{subtotal.toFixed(2)} MT</Text>
             </View>
             <View className="flex-row justify-between mb-2">
-                <Text className="text-muted">IVA (16%)</Text>
+                <Text className="text-text opacity-60">IVA (16%)</Text>
                 <Text className="text-text">{tax.toFixed(2)} MT</Text>
             </View>
             <View className="flex-row justify-between pt-2 border-t border-border">
@@ -238,6 +241,10 @@ export default function EditInvoiceScreen() {
                 <Text className="font-bold text-lg text-primary">{total.toFixed(2)} MT</Text>
             </View>
         </Card>
+
+        <Text className="text-xs text-text opacity-60 text-center mb-4 px-4">
+            Taxas configuradas pelo usuário. Verifique a conformidade com a <Text className="text-primary underline" onPress={() => Linking.openURL('https://www.at.gov.mz')}>AT (www.at.gov.mz)</Text>.
+        </Text>
 
         <Button label="Actualizar Documento" onPress={handleSave} className="mb-10" />
       </ScrollView>

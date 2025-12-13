@@ -16,7 +16,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: isDark ? '#9ca3af' : '#9ca3af',
         tabBarStyle: {
           borderTopColor: isDark ? '#404040' : '#e5e7eb',
-          backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+          backgroundColor: isDark ? '#0a0a0a' : '#ffffff', // Matched with global.css --color-background
           height: Platform.OS === 'ios' ? 90 : 70,
           paddingBottom: Platform.OS === 'ios' ? 30 : 10,
           paddingTop: 8,
