@@ -2,6 +2,7 @@ export function formatInvoiceId(type: string, id: number): string {
   const prefixMap: Record<string, string> = {
     'FACTURA': 'FAC',
     'COTACAO': 'COT',
+    'COTAÇÃO': 'COT',
     'VD': 'VD',
     'RECIBO': 'REC'
   };

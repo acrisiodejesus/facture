@@ -19,7 +19,7 @@ export default function NewInvoiceScreen() {
   const [showProductModal, setShowProductModal] = useState(false);
 
   const [form, setForm] = useState({
-    type: 'FACTURA', // FACTURA, COTACAO, VD
+    type: 'FACTURA', // FACTURA, COTAÇÃO, VD
     client_id: null as number | null,
     items: [] as any[],
     discount: '0'
@@ -97,7 +97,7 @@ export default function NewInvoiceScreen() {
   }
 
   const subtotal = form.items.reduce((sum, item) => sum + item.total, 0);
-  const taxTotal = subtotal * 0.16; // 16% VAT
+  const taxTotal = subtotal * ((settings?.tax_percentage || 16) / 100);
   const total = subtotal + taxTotal;
 
   async function handleSave() {
@@ -142,7 +142,7 @@ export default function NewInvoiceScreen() {
       <ScrollView className="flex-1 p-4">
         {/* Type Selection */}
         <View className="flex-row gap-2 mb-4">
-            {['FACTURA', 'COTACAO', 'VD'].map(t => (
+            {['FACTURA', 'COTAÇÃO', 'VD'].map(t => (
                 <TouchableOpacity 
                     key={t} 
                     onPress={() => setForm({...form, type: t})}
@@ -222,7 +222,7 @@ export default function NewInvoiceScreen() {
                 <Text>{subtotal.toFixed(2)} MT</Text>
             </View>
             <View className="flex-row justify-between mb-2">
-                <Text>IVA (16%)</Text>
+                <Text>IVA ({settings?.tax_percentage || 16}%)</Text>
                 <Text>{taxTotal.toFixed(2)} MT</Text>
             </View>
             <View className="border-t border-border pt-2 flex-row justify-between">

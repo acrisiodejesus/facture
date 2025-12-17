@@ -38,7 +38,7 @@ export const SCHEMA = {
   createInvoicesTable: `
     CREATE TABLE IF NOT EXISTS invoices (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      type TEXT NOT NULL, -- 'FACTURA', 'COTACAO', 'VD'
+      type TEXT NOT NULL, -- 'FACTURA', 'COTAÇÃO', 'VD'
       client_id INTEGER,
       date DATETIME DEFAULT CURRENT_TIMESTAMP,
       due_date DATETIME,

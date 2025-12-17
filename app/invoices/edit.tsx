@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Text } from '@/components/ui/Text';
 import { useColorScheme } from '@/components/useColorScheme';
-import { deleteInvoice, getClients, getInvoice, getInvoiceItems, getProducts, updateInvoice } from '@/db/queries';
+import { deleteInvoice, getClients, getInvoice, getInvoiceItems, getProducts, getSettings, updateInvoice } from '@/db/queries';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft, Trash2 } from 'lucide-react-native';
@@ -17,7 +17,7 @@ export default function EditInvoiceScreen() {
   const iconColor = colorScheme === 'dark' ? '#ffffff' : '#000000';
   const db = useSQLiteContext();
   
-  const [type, setType] = useState('Factura');
+  const [type, setType] = useState('FACTURA');
   const [clientId, setClientId] = useState<number | null>(null);
   const [items, setItems] = useState<any[]>([]);
   const [date, setDate] = useState(new Date());
@@ -27,6 +27,7 @@ export default function EditInvoiceScreen() {
   const [products, setProducts] = useState<any[]>([]);
   const [showClientModal, setShowClientModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
     loadData();
@@ -35,8 +36,10 @@ export default function EditInvoiceScreen() {
   async function loadData() {
     const clientsData = await getClients(db);
     const productsData = await getProducts(db);
+    const settingsData = await getSettings(db);
     setClients(clientsData);
     setProducts(productsData);
+    setSettings(settingsData);
 
     if (id) {
         const invoice: any = await getInvoice(db, Number(id));
@@ -93,7 +96,7 @@ export default function EditInvoiceScreen() {
 
   const calculateTotals = () => {
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const tax = subtotal * 0.16; // 16% VAT
+    const tax = subtotal * ((settings?.tax_percentage || 16) / 100);
     return { subtotal, tax, total: subtotal + tax };
   };
 
@@ -163,7 +166,7 @@ export default function EditInvoiceScreen() {
 
       <ScrollView className="flex-1 p-4">
         <View className="flex-row gap-2 mb-4">
-            {['Factura', 'Cotação', 'VD'].map((t) => (
+            {['FACTURA', 'COTAÇÃO', 'VD'].map((t) => (
                 <TouchableOpacity 
                     key={t}
                     onPress={() => setType(t)}
@@ -233,7 +236,7 @@ export default function EditInvoiceScreen() {
                 <Text className="text-text">{subtotal.toFixed(2)} MT</Text>
             </View>
             <View className="flex-row justify-between mb-2">
-                <Text className="text-text opacity-60">IVA (16%)</Text>
+                <Text className="text-text opacity-60">IVA ({settings?.tax_percentage || 16}%)</Text>
                 <Text className="text-text">{tax.toFixed(2)} MT</Text>
             </View>
             <View className="flex-row justify-between pt-2 border-t border-border">

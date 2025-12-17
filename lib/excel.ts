@@ -2,11 +2,13 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as XLSX from 'xlsx';
 
-export async function exportToExcel(data: any[], sheetName: string, fileName: string, exportType: 'JOURNAL' | 'SALES_MAP') {
+export async function exportToExcel(data: any[], sheetName: string, fileName: string, exportType: 'JOURNAL' | 'SALES_MAP', settings: any) {
   const wb = XLSX.utils.book_new();
 
   // Group data by month
   const groupedData: { [key: string]: any[] } = {};
+
+  const taxRate = (settings?.tax_percentage || 16) / 100;
 
   data.forEach(entry => {
     const date = new Date(entry.date);
@@ -19,7 +21,6 @@ export async function exportToExcel(data: any[], sheetName: string, fileName: st
     const amount = entry.amount;
 
     if (exportType === 'SALES_MAP') {
-      const taxRate = 0.16; // 16% VAT
       const taxAmount = amount * taxRate;
 
       groupedData[monthKey].push({
@@ -27,7 +28,7 @@ export async function exportToExcel(data: any[], sheetName: string, fileName: st
         Documento: entry.invoice_number ? `${entry.invoice_type} #${entry.invoice_number}` : (entry.document_type || '-'),
         Descrição: entry.description,
         Valor: amount,
-        'IVA (16%)': taxAmount.toFixed(2),
+        [`IVA (${settings?.tax_percentage || 16}%)`]: taxAmount.toFixed(2),
         Total: (amount + taxAmount).toFixed(2)
       });
     } else {
@@ -50,7 +51,7 @@ export async function exportToExcel(data: any[], sheetName: string, fileName: st
     // Calculate Totals
     if (exportType === 'SALES_MAP') {
       const totalValor = sheetData.reduce((sum, item) => sum + item.Valor, 0);
-      const totalIVA = sheetData.reduce((sum, item) => sum + parseFloat(item['IVA (16%)']), 0);
+      const totalIVA = sheetData.reduce((sum, item) => sum + parseFloat(item[`IVA (${settings?.tax_percentage || 16}%)`]), 0);
       const totalTotal = sheetData.reduce((sum, item) => sum + parseFloat(item.Total), 0);
 
       sheetData.push({
@@ -58,7 +59,7 @@ export async function exportToExcel(data: any[], sheetName: string, fileName: st
         Documento: '',
         Descrição: '',
         Valor: totalValor,
-        'IVA (16%)': totalIVA.toFixed(2),
+        [`IVA (${settings?.tax_percentage || 16}%)`]: totalIVA.toFixed(2),
         Total: totalTotal.toFixed(2)
       });
     } else {

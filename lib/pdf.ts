@@ -91,7 +91,7 @@ export async function generateInvoicePDF(invoice: any, items: any[], settings: a
             <span>${invoice.subtotal.toFixed(2)} ${settings.currency}</span>
           </div>
           <div class="total-row">
-            <span>IVA:</span>
+            <span>IVA (${settings?.tax_percentage || 16}%):</span>
             <span>${invoice.tax_total.toFixed(2)} ${settings.currency}</span>
           </div>
           <div class="total-row grand-total">
@@ -217,7 +217,7 @@ export async function generateSalesMapPDF(entries: any[], settings: any) {
   }
 
   const totalAmount = entries.reduce((sum, item) => sum + item.amount, 0);
-  const totalTax = totalAmount * 0.16;
+  const totalTax = totalAmount * ((settings?.tax_percentage || 16) / 100);
   const totalTotal = totalAmount + totalTax;
 
   const html = `
@@ -260,14 +260,14 @@ export async function generateSalesMapPDF(entries: any[], settings: any) {
               <th>Documento</th>
               <th>Descrição</th>
               <th class="amount-col">Valor</th>
-              <th class="amount-col">IVA (16%)</th>
+              <th class="amount-col">IVA (${settings?.tax_percentage || 16}%)</th>
               <th class="amount-col">Total</th>
             </tr>
           </thead>
           <tbody>
             ${entries.map((item: any) => {
     const total = item.amount;
-    const subtotal = total / 1.16;
+    const subtotal = total / (1 + ((settings?.tax_percentage || 16) / 100));
     const tax = total - subtotal;
     return `
                 <tr>
@@ -282,8 +282,8 @@ export async function generateSalesMapPDF(entries: any[], settings: any) {
   }).join('')}
             <tr class="total-row">
                 <td colspan="3" style="text-align: right;">TOTAIS</td>
-                <td class="amount-col">${(totalAmount / 1.16).toFixed(2)}</td>
-                <td class="amount-col">${(totalAmount - (totalAmount / 1.16)).toFixed(2)}</td>
+                <td class="amount-col">${(totalAmount / (1 + ((settings?.tax_percentage || 16) / 100))).toFixed(2)}</td>
+                <td class="amount-col">${(totalAmount - (totalAmount / (1 + ((settings?.tax_percentage || 16) / 100)))).toFixed(2)}</td>
                 <td class="amount-col">${totalAmount.toFixed(2)}</td>
             </tr>
           </tbody>

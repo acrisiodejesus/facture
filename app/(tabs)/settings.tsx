@@ -83,7 +83,8 @@ export default function SettingsScreen() {
   async function handleExportJournalExcel() {
       try {
           const entries = await getJournalEntries(db);
-          await exportToExcel(entries, 'Diario', 'diario_operacoes', 'JOURNAL');
+          const settings = await getSettings(db);
+          await exportToExcel(entries, 'Diario', 'diario_operacoes', 'JOURNAL', settings);
       } catch (e) {
           console.error(e);
           Alert.alert('Erro', 'Falha ao exportar Excel');
@@ -104,8 +105,9 @@ export default function SettingsScreen() {
   async function handleExportSalesMapExcel() {
       try {
           const entries = await getJournalEntries(db);
+          const settings = await getSettings(db);
           const sales = entries.filter((e: any) => e.type === 'ENTRY');
-          await exportToExcel(sales, 'MapaVendas', 'mapa_vendas', 'SALES_MAP');
+          await exportToExcel(sales, 'MapaVendas', 'mapa_vendas', 'SALES_MAP', settings);
       } catch (e) {
           console.error(e);
           Alert.alert('Erro', 'Falha ao exportar Excel');
