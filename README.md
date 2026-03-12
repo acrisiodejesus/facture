@@ -18,7 +18,7 @@ Financial applications require absolute precision, strict security, and flawless
 
 I selected this stack to ensure maintainability, type safety, and maximum cross-platform performance:
 
-* **Framework:** React Native (CLI/Expo - *adjust according to your project*)
+* **Framework:** React Native Expo 
 * **Language:** TypeScript (Strict typing for financial data models)
 * **State Management:** Context API
 * **Navigation:** React Navigation (Optimized stack and tab routing)
