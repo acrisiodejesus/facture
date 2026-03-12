@@ -34,4 +34,34 @@ Building a mobile financial app requires looking beyond basic UI components. Her
 Financial apps handle large arrays of data (transaction histories, logs). I implemented highly optimized `FlatList` components with custom memoization to ensure smooth scrolling at 60 FPS, even with heavy datasets.
 
 ### 2. Strict Type Safety
-By utilizing TypeScript, I ensured that the data contracts between the mobile app and the
+By utilizing TypeScript, I ensured that the data contracts between the mobile app and the backend API are strictly enforced, eliminating a massive class of runtime errors related to financial calculations.
+
+### 3. Secure State & API Communication
+The application handles sensitive data. The architecture focuses on secure token management, robust error handling, and a clean separation of concerns between UI components and the data-fetching layer.
+
+### 4. Cross-Platform UI Consistency
+The interface was meticulously designed to feel native on both iOS and Android devices, handling safe areas, keyboard avoiding views, and platform-specific styling nuances gracefully.
+
+
+
+<br>
+
+<div align="center">
+  <img src="https://via.placeholder.com/250x500.png?text=Home+Screen" width="30%" />
+  &nbsp;&nbsp;&nbsp;
+  <img src="https://via.placeholder.com/250x500.png?text=Transaction+List" width="30%" />
+  &nbsp;&nbsp;&nbsp;
+  <img src="https://via.placeholder.com/250x500.png?text=Payment+Flow" width="30%" />
+</div>
+
+---
+
+## 🤝 Need a Robust Mobile Application?
+
+Are you looking to build a React Native application that actually scales and performs like a native app? I specialize in End-to-End development, from designing the REST API to delivering the final mobile experience.
+
+Let's discuss your mobile architecture.
+
+[![Upwork](https://img.shields.io/badge/Hire_me_on-Upwork-14A800?style=for-the-badge&logo=upwork&logoColor=white)]([TEU_LINK_UPWORK])
+[![Fiverr](https://img.shields.io/badge/Hire_me_on-Fiverr-00b22d?style=for-the-badge&logo=fiverr&logoColor=white)]([TEU_LINK_FIVERR])
+[![LinkedIn](https://img.shields.io/badge/Connect_on-LinkedIn-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/acrisiodejesus)
