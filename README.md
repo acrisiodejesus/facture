@@ -46,14 +46,6 @@ The interface was meticulously designed to feel native on both iOS and Android d
 
 <br>
 
-<div align="center">
-  <img src="https://via.placeholder.com/250x500.png?text=Home+Screen" width="30%" />
-  &nbsp;&nbsp;&nbsp;
-  <img src="https://via.placeholder.com/250x500.png?text=Transaction+List" width="30%" />
-  &nbsp;&nbsp;&nbsp;
-  <img src="https://via.placeholder.com/250x500.png?text=Payment+Flow" width="30%" />
-</div>
-
 ---
 
 ## 🤝 Need a Robust Mobile Application?
