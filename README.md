@@ -20,7 +20,7 @@ I selected this stack to ensure maintainability, type safety, and maximum cross-
 
 * **Framework:** React Native (CLI/Expo - *adjust according to your project*)
 * **Language:** TypeScript (Strict typing for financial data models)
-* **State Management:** *[Insert what you used: e.g., Zustand / Redux Toolkit / Context API]*
+* **State Management:** Context API
 * **Navigation:** React Navigation (Optimized stack and tab routing)
 * **API Integration:** RESTful architecture consuming a Node.js/PostgreSQL backend
 
